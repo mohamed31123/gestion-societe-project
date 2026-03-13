@@ -20,6 +20,7 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nom;
+    private String code ;
     private String description;
     private Date dateDebut;
     private Date dateFin;

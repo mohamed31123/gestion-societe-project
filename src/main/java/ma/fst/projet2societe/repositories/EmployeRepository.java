@@ -12,6 +12,5 @@ public interface EmployeRepository extends JpaRepository<Employe, Long> {
     public Employe findByMatricule(String matricule);
     public Employe findByLogin(String code);
 
-    public List<Employe> findByProjectId(Long projectId);
 
 }
