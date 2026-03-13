@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface EmployeRepository extends JpaRepository<Employe, Long> {
     public Employe findByMatricule(String matricule);
     public Employe findByLogin(String code);
