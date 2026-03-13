@@ -13,9 +13,6 @@ import lombok.*;
 public class Livrable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-
-
     private Long id;
     private String code;
     private String libelle;
