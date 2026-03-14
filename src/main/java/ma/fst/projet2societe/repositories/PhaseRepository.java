@@ -12,8 +12,8 @@ public interface PhaseRepository extends JpaRepository<Phase, Long> {
     // recherche des phases facturées non payées
     List<Phase> findByEtatFacturationTrueAndEtatPaiementFalse();
 
-    // recherche des phases d'un projet
-    List<Phase> findByProjetId(Long projetId);
+    // recherche des phases d'un project
+    List<Phase> findByProjectId(Long projectId);
 
 
 

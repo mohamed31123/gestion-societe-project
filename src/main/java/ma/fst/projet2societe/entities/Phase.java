@@ -32,7 +32,7 @@ public class Phase {
     private boolean etatPaiement;
 
     @ManyToOne
-    @JoinColumn(name = "idProjet")
+    @JoinColumn(name = "idProject")
     private Project project;
 
     @OneToMany(mappedBy = "phase")
