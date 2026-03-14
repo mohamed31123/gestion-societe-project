@@ -35,8 +35,4 @@ public class Affectation {
     private Phase phase;
 
 
-
-
-
-
 }
