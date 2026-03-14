@@ -7,8 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.fst.projet2societe.dto.OrganismeRequest;
 import ma.fst.projet2societe.dto.OrganismeResponse;
-import ma.fst.projet2societe.service.OrganismeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import ma.fst.projet2societe.services.OrganismeService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
