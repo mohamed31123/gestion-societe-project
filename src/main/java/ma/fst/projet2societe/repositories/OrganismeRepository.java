@@ -13,4 +13,5 @@ public interface OrganismeRepository extends JpaRepository<Organisme, Long> {
     boolean existsByCode(String code);
     List<Organisme> findByNom(String nom);
     List<Organisme> findByNomContact(String nomContact);
+
 }
