@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public interface EmployeRepository extends JpaRepository<Employe, Long> {
     @Query("SELECT DISTINCT e FROM Employe e WHERE e.id NOT IN " +
             "(SELECT a.employe.id FROM Affectation a WHERE " +
-            "a.dateDebut <= :dateFin AND a.dateFin >= :dateDebut)")
+            "a.datedebut <= :dateFin AND a.datefin >= :dateDebut)")
     List<Employe> findEmployesDisponibles(
             @Param("dateDebut") LocalDate dateDebut,
             @Param("dateFin") LocalDate dateFin);
