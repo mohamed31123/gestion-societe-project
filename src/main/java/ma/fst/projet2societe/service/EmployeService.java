@@ -1,4 +1,4 @@
-package ma.fst.projet2societe.services;
+package ma.fst.projet2societe.service;
 
 import ma.fst.projet2societe.entities.Employe;
 import ma.fst.projet2societe.repositories.EmployeRepository;
