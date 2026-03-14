@@ -1,4 +1,4 @@
-package ma.fst.projet2societe.service;
+package ma.fst.projet2societe.services;
 
 import lombok.RequiredArgsConstructor;
 import ma.fst.projet2societe.dto.OrganismeRequest;

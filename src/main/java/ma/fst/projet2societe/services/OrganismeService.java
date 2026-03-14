@@ -1,8 +1,7 @@
-package ma.fst.projet2societe.service ;
+package ma.fst.projet2societe.services;
 
 import ma.fst.projet2societe.dto.OrganismeRequest;
 import ma.fst.projet2societe.dto.OrganismeResponse;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
