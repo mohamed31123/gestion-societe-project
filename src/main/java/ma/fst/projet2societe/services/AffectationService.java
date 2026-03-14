@@ -8,6 +8,7 @@ import ma.fst.projet2societe.repositories.PhaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.time.LocalDate;
 
 @Service
 public class AffectationService {
@@ -23,21 +24,43 @@ public class AffectationService {
 
     // Affecter un employé à une phase
     public Affectation affecter(AffectationDTO dto) {
-        // Vérifier que l'employé existe
+
         Employe employe = employeRepository.findById(dto.getEmployeId())
                 .orElseThrow(() -> new RuntimeException("Employé non trouvé"));
 
-        // Vérifier que la phase existe
         Phase phase = phaseRepository.findById(dto.getPhaseId())
                 .orElseThrow(() -> new RuntimeException("Phase non trouvée"));
 
-        // Vérifier pas de doublon
+        // 1. Pas de doublon
         AffectationId affectationId = new AffectationId(dto.getEmployeId(), dto.getPhaseId());
         if (affectationRepository.existsById(affectationId)) {
             throw new RuntimeException("Affectation déjà existante");
         }
 
-        // creation de l'affictation
+        // 2. Cohérence des dates
+        if (dto.getDatedebut().after(dto.getDatefin())) {
+            throw new RuntimeException("La date début doit être avant la date fin");
+        }
+
+        // 3. Dates incluses dans la phase
+        if (dto.getDatedebut().before(phase.getDateDebut()) ||
+                dto.getDatefin().after(phase.getDateFin())) {
+            throw new RuntimeException("Les dates d'affectation doivent être incluses dans la phase");
+        }
+
+        // 4. Employé disponible sur la période
+        LocalDate debut = dto.getDatedebut().toInstant()
+                .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        LocalDate fin = dto.getDatefin().toInstant()
+                .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        List<Employe> disponibles = employeRepository.findEmployesDisponibles(debut, fin);
+        boolean estDisponible = disponibles.stream()
+                .anyMatch(e -> e.getId().equals(dto.getEmployeId()));
+        if (!estDisponible) {
+            throw new RuntimeException("Employé non disponible sur cette période");
+        }
+
+        // Créer l'affectation
         Affectation affectation = new Affectation();
         affectation.setId(affectationId);
         affectation.setEmploye(employe);
@@ -80,4 +103,5 @@ public class AffectationService {
         return affectationRepository.findByPhaseIdAndEmployeId(phaseId, employeId)
                 .orElseThrow(() -> new RuntimeException("Affectation non trouvée"));
     }
+
 }
