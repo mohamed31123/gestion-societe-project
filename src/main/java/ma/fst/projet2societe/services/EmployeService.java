@@ -4,6 +4,7 @@ import ma.fst.projet2societe.entities.Employe;
 import ma.fst.projet2societe.repositories.EmployeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -22,13 +23,25 @@ public class EmployeService {
     }
 
     public Employe create(Employe employe) {
+        if (employeRepository.findByMatricule(employe.getMatricule()).isPresent()) {
+            throw new RuntimeException("Matricule déjà existant");
+        }
+        if (employeRepository.findByLogin(employe.getLogin()).isPresent()) {
+            throw new RuntimeException("Login déjà existant");
+        }
+        if (employeRepository.findByEmail(employe.getEmail()).isPresent()) {
+            throw new RuntimeException("Email déjà existant");
+        }
         return employeRepository.save(employe);
     }
 
     public Employe update(Long id, Employe employe) {
         Employe existing = getById(id);
         existing.setNom(employe.getNom());
+        existing.setAdresse(employe.getAdresse());
+        existing.setPassword(employe.getPassword());
         existing.setPrenom(employe.getPrenom());
+        existing.setMatricule(employe.getMatricule());
         existing.setTelephone(employe.getTelephone());
         existing.setEmail(employe.getEmail());
         existing.setLogin(employe.getLogin());
@@ -40,9 +53,10 @@ public class EmployeService {
         employeRepository.deleteById(id);
     }
 
-    // Recherche disponibilité
+    // recherche par les dates debut et fin
     public List<Employe> getDisponibles(String dateDebut, String dateFin) {
-        return employeRepository.findAll(); 
+        LocalDate debut = LocalDate.parse(dateDebut);
+        LocalDate fin = LocalDate.parse(dateFin);
+        return employeRepository.findEmployesDisponibles(debut, fin);
     }
 }
-

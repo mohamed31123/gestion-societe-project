@@ -1,4 +1,4 @@
-package ma.fst.projet2societe.service ;
+package ma.fst.projet2societe.services;
 
 import ma.fst.projet2societe.dto.OrganismeRequest;
 import ma.fst.projet2societe.dto.OrganismeResponse;
@@ -20,4 +20,5 @@ public interface OrganismeService {
     OrganismeResponse findByNom(String nom);
     OrganismeResponse findByCode(String code);
     OrganismeResponse findByNomContact(String nomContact);
+
 }

@@ -7,8 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.fst.projet2societe.dto.OrganismeRequest;
 import ma.fst.projet2societe.dto.OrganismeResponse;
-import ma.fst.projet2societe.service.OrganismeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import ma.fst.projet2societe.services.OrganismeService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +36,9 @@ public class OrganismeController {
     @GetMapping("/nom/{nom}")
     @Operation(summary = "trouver un organisme par son nom")
 
+
+
+
     public OrganismeResponse findByNom(@PathVariable String nom) {
         return organismeService.findByNom(nom);
     }
@@ -52,5 +54,17 @@ public class OrganismeController {
     @Operation(summary = "trouver un contact")
     public OrganismeResponse findByContact(@PathVariable String contact) {
         return organismeService.findByNomContact(contact);
+    }
+    @DeleteMapping
+    @Operation(summary = "supprimer une organisme")
+    public void deleteById(@RequestParam Long id) {
+         organismeService.delete(id);
+    }
+    //adding postMapping to update organisme
+    @PutMapping("update/{id}")
+    @Operation(summary = "creer des organismes")
+    public OrganismeResponse update(@PathVariable Long id, @Valid @RequestBody OrganismeRequest request) {
+        return organismeService.update(id, request);
+
     }
 }

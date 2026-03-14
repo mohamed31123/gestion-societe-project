@@ -1,4 +1,4 @@
-package ma.fst.projet2societe.service;
+package ma.fst.projet2societe.services;
 
 import lombok.RequiredArgsConstructor;
 import ma.fst.projet2societe.dto.OrganismeRequest;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OrganismeServiceImpl implements OrganismeService {
+public  class OrganismeServiceImpl implements OrganismeService {
 
     private final OrganismeRepository organismeRepository;
     private final EmployeRepository employeRepository;
@@ -85,7 +85,6 @@ public class OrganismeServiceImpl implements OrganismeService {
 
         Organisme organisme = organismeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organisme introuvable"));
-
         organismeRepository.delete(organisme);
     }
 
@@ -107,6 +106,8 @@ public class OrganismeServiceImpl implements OrganismeService {
 
         return response;
     }
+
+
 
     @Override
     public OrganismeResponse findByNom(String nom) {

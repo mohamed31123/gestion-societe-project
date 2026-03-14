@@ -1,0 +1,107 @@
+package ma.fst.projet2societe.services;
+
+import ma.fst.projet2societe.entities.*;
+import ma.fst.projet2societe.dto.AffectationDTO;
+import ma.fst.projet2societe.repositories.AffectationRepository;
+import ma.fst.projet2societe.repositories.EmployeRepository;
+import ma.fst.projet2societe.repositories.PhaseRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.time.LocalDate;
+
+@Service
+public class AffectationService {
+
+    @Autowired
+    private AffectationRepository affectationRepository;
+
+    @Autowired
+    private EmployeRepository employeRepository;
+
+    @Autowired
+    private PhaseRepository phaseRepository;
+
+    // Affecter un employé à une phase
+    public Affectation affecter(AffectationDTO dto) {
+
+        Employe employe = employeRepository.findById(dto.getEmployeId())
+                .orElseThrow(() -> new RuntimeException("Employé non trouvé"));
+
+        Phase phase = phaseRepository.findById(dto.getPhaseId())
+                .orElseThrow(() -> new RuntimeException("Phase non trouvée"));
+
+        // 1. Pas de doublon
+        AffectationId affectationId = new AffectationId(dto.getEmployeId(), dto.getPhaseId());
+        if (affectationRepository.existsById(affectationId)) {
+            throw new RuntimeException("Affectation déjà existante");
+        }
+
+        // 2. Cohérence des dates
+        if (dto.getDatedebut().after(dto.getDatefin())) {
+            throw new RuntimeException("La date début doit être avant la date fin");
+        }
+
+        // 3. Dates incluses dans la phase
+        if (dto.getDatedebut().before(phase.getDateDebut()) ||
+                dto.getDatefin().after(phase.getDateFin())) {
+            throw new RuntimeException("Les dates d'affectation doivent être incluses dans la phase");
+        }
+
+        // 4. Employé disponible sur la période
+        LocalDate debut = dto.getDatedebut().toInstant()
+                .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        LocalDate fin = dto.getDatefin().toInstant()
+                .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        List<Employe> disponibles = employeRepository.findEmployesDisponibles(debut, fin);
+        boolean estDisponible = disponibles.stream()
+                .anyMatch(e -> e.getId().equals(dto.getEmployeId()));
+        if (!estDisponible) {
+            throw new RuntimeException("Employé non disponible sur cette période");
+        }
+
+        // Créer l'affectation
+        Affectation affectation = new Affectation();
+        affectation.setId(affectationId);
+        affectation.setEmploye(employe);
+        affectation.setPhase(phase);
+        affectation.setDatedebut(dto.getDatedebut());
+        affectation.setDatefin(dto.getDatefin());
+
+        return affectationRepository.save(affectation);
+    }
+
+    // liste employe phase
+    public List<Affectation> getByPhase(Long phaseId) {
+        return affectationRepository.findByPhaseId(phaseId);
+    }
+
+    // liste phases employe
+    public List<Affectation> getByEmploye(Long employeId) {
+        return affectationRepository.findByEmployeId(employeId);
+    }
+
+    // supprimer l'affectation
+    public void supprimer(Long employeId, Long phaseId) {
+        AffectationId affectationId = new AffectationId(employeId, phaseId);
+        if (!affectationRepository.existsById(affectationId)) {
+            throw new RuntimeException("Affectation non trouvée");
+        }
+        affectationRepository.deleteById(affectationId);
+    }
+
+    // modifier l'affictation
+    public Affectation modifier(Long employeId, Long phaseId, AffectationDTO dto) {
+        AffectationId affectationId = new AffectationId(employeId, phaseId);
+        Affectation existing = affectationRepository.findById(affectationId)
+                .orElseThrow(() -> new RuntimeException("Affectation non trouvée"));
+        existing.setDatedebut(dto.getDatedebut());
+        existing.setDatefin(dto.getDatefin());
+        return affectationRepository.save(existing);
+    }
+    public Affectation getByPhaseAndEmploye(Long phaseId, Long employeId) {
+        return affectationRepository.findByPhaseIdAndEmployeId(phaseId, employeId)
+                .orElseThrow(() -> new RuntimeException("Affectation non trouvée"));
+    }
+
+}
