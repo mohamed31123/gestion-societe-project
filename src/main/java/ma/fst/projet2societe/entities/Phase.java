@@ -31,8 +31,10 @@ public class Phase {
     private boolean etatFacturation;
     private boolean etatPaiement;
 
+ feature-gestionproject
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_projet" , nullable = false)
+    @JoinColumn(name = "idProject")
+
     private Project project;
 
     @OneToMany(mappedBy = "phase")

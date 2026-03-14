@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface LivrableRepository extends JpaRepository<Livrable,Long> {
 
-    List<Livrable> findByPhaseId(Long phaseId);
+
+
 
 
 }

@@ -40,4 +40,7 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade =  CascadeType.ALL, orphanRemoval = true)
     List<Phase> phases =  new ArrayList<>();
 
+    public boolean isPresent() {
+        return false;
+    }
 }

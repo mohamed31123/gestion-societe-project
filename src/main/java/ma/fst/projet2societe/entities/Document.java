@@ -25,6 +25,6 @@ public class Document {
     private String chemin;
 
     @ManyToOne
-    @JoinColumn(name = "projet_id")
-    private Project projet;
+    @JoinColumn(name = "project_id")
+    private Project project;
 }
