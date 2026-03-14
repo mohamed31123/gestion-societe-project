@@ -1,4 +1,5 @@
 package ma.fst.projet2societe.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 import jakarta.persistence.*;
@@ -33,9 +34,11 @@ public class Employe {
     private Profil profil;
 
     //la relation entre projet et employe
+    @JsonIgnore
     @OneToMany(mappedBy = "employe")
     private List<Project> projects = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "employe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Affectation> affectations = new ArrayList<>();
 

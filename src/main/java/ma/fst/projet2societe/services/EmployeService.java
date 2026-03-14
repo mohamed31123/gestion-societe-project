@@ -38,7 +38,10 @@ public class EmployeService {
     public Employe update(Long id, Employe employe) {
         Employe existing = getById(id);
         existing.setNom(employe.getNom());
+        existing.setAdresse(employe.getAdresse());
+        existing.setPassword(employe.getPassword());
         existing.setPrenom(employe.getPrenom());
+        existing.setMatricule(employe.getMatricule());
         existing.setTelephone(employe.getTelephone());
         existing.setEmail(employe.getEmail());
         existing.setLogin(employe.getLogin());

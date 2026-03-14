@@ -1,5 +1,7 @@
 package ma.fst.projet2societe.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ma.fst.projet2societe.entities.Employe;
 import ma.fst.projet2societe.repositories.EmployeRepository;
 import ma.fst.projet2societe.services.EmployeService;
@@ -11,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/employes")
 @CrossOrigin("*")
+@Tag(name = "Gestion des employés", description = "APIs pour gérer les employés")
 public class EmployeController {
 
     @Autowired
@@ -19,46 +22,47 @@ public class EmployeController {
     @Autowired
     private EmployeRepository employeRepository;
 
-    // GET /api/employes
+    @Operation(summary = "Liste tous les employés")
     @GetMapping
     public List<Employe> getAll() {
         return employeService.getAll();
     }
 
-    // GET /api/employes/{id}
+    @Operation(summary = "Trouver un employé par ID")
     @GetMapping("/{id}")
     public ResponseEntity<Employe> getById(@PathVariable Long id) {
         return ResponseEntity.ok(employeService.getById(id));
     }
 
-    // POST /api/employes
+    @Operation(summary = "Créer un nouvel employé")
     @PostMapping
     public ResponseEntity<Employe> create(@RequestBody Employe employe) {
         return ResponseEntity.ok(employeService.create(employe));
     }
 
-    // PUT /api/employes/{id}
+    @Operation(summary = "Modifier un employé existant")
     @PutMapping("/{id}")
     public ResponseEntity<Employe> update(@PathVariable Long id,
                                           @RequestBody Employe employe) {
         return ResponseEntity.ok(employeService.update(id, employe));
     }
 
-    // DELETE /api/employes/{id}
+    @Operation(summary = "Supprimer un employé par ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         employeService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    // GET /api/employes/disponibles
+    @Operation(summary = "Lister les employés disponibles sur une période",
+            description = "Format des dates : YYYY-MM-DD")
     @GetMapping("/disponibles")
     public List<Employe> getDisponibles(@RequestParam String dateDebut,
                                         @RequestParam String dateFin) {
         return employeService.getDisponibles(dateDebut, dateFin);
     }
 
-    // GET /api/employes/search
+    @Operation(summary = "Rechercher des employés par nom ou matricule")
     @GetMapping("/search")
     public List<Employe> search(
             @RequestParam(required = false) String nom,
@@ -73,4 +77,3 @@ public class EmployeController {
         return employeService.getAll();
     }
 }
-
