@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.fst.projet2societe.dto.PhaseRequest;
 import ma.fst.projet2societe.dto.PhaseResponse;
-import ma.fst.projet2societe.service.PhaseService;
+import ma.fst.projet2societe.services.PhaseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
