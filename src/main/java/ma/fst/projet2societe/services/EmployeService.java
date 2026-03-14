@@ -21,9 +21,8 @@ public class EmployeService {
                 .orElseThrow(() -> new RuntimeException("Employé non trouvé"));
     }
 
-    public Employe create(Employe employe) {
-        return employeRepository.save(employe);
-    }
+
+
 
     public Employe update(Long id, Employe employe) {
         Employe existing = getById(id);
@@ -43,6 +42,18 @@ public class EmployeService {
     // Recherche disponibilité
     public List<Employe> getDisponibles(String dateDebut, String dateFin) {
         return employeRepository.findAll(); // à affiner après
+    }
+    public Employe create(Employe employe) {
+        if (employeRepository.findByMatricule(employe.getMatricule()).isPresent()) {
+            throw new RuntimeException("Matricule déjà existant");
+        }
+        if (employeRepository.findByLogin(employe.getLogin()).isPresent()) {
+            throw new RuntimeException("Login déjà existant");
+        }
+        if (employeRepository.findByEmail(employe.getEmail()).isPresent()) {
+            throw new RuntimeException("Email déjà existant");
+        }
+        return employeRepository.save(employe);
     }
 }
 
