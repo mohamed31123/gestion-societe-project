@@ -2,6 +2,7 @@ package ma.fst.projet2societe.service ;
 
 import ma.fst.projet2societe.dto.OrganismeRequest;
 import ma.fst.projet2societe.dto.OrganismeResponse;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -20,4 +21,5 @@ public interface OrganismeService {
     OrganismeResponse findByNom(String nom);
     OrganismeResponse findByCode(String code);
     OrganismeResponse findByNomContact(String nomContact);
+
 }
