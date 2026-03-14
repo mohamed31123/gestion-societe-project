@@ -42,7 +42,7 @@ public class EmployeService {
 
     // Recherche disponibilité
     public List<Employe> getDisponibles(String dateDebut, String dateFin) {
-        return employeRepository.findAll(); // à affiner après
+        return employeRepository.findAll(); 
     }
 }
 
