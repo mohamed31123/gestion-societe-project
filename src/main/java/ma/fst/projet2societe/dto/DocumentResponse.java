@@ -14,6 +14,6 @@ public class DocumentResponse {
     private Long tailleFichier;
     private LocalDateTime dateUpload;
     private String downloadUrl;
-    private Long projetId;
-    private String projetNom;
+    private Long projectId;
+    private String projectNom;
 }

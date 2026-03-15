@@ -21,12 +21,12 @@ public class DocumentController {
 
     private final DocumentService documentService;
 
-    // ── POST /api/projets/{projetId}/documents ────────────────────────────────
+    //  POST /api/projects/{projectId}/documents
 
-    @PostMapping(value = "/api/projets/{projetId}/documents",
+    @PostMapping(value = "/api/projects/{projetcId}/documents",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DocumentResponse> create(
-            @PathVariable Long projetId,
+            @PathVariable Long projectId,
             @RequestParam("code") String code,
             @RequestParam("libelle") String libelle,
             @RequestParam(value = "descteption", required = false) String descteption,
@@ -38,26 +38,26 @@ public class DocumentController {
         request.setDescteption(descteption);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(documentService.create(projetId, request, fichier));
+                .body(documentService.create(projectId, request, fichier));
     }
 
-    // ── GET /api/projets/{projetId}/documents ─────────────────────────────────
-    @GetMapping("/api/projets/{projetId}/documents")
-    @Operation(summary = "Lister tous les documents d'un projet")
-    public ResponseEntity<List<DocumentResponse>> findByProjet(
-            @PathVariable Long projetId) {
+    // GET /api/projets/{projetId}/documents
+    @GetMapping("/api/projects/{projectId}/documents")
+    @Operation(summary = "Lister tous les documents d'un project")
+    public ResponseEntity<List<DocumentResponse>> findByProject(
+            @PathVariable Long projectId) {
 
-        return ResponseEntity.ok(documentService.findByProjet(projetId));
+        return ResponseEntity.ok(documentService.findByProject(projectId));
     }
 
-    // ── GET /api/documents/{id} ───────────────────────────────────────────────
+    //  GET /api/documents/{id}
     @GetMapping("/api/documents/{id}")
     @Operation(summary = "Récupérer un document par son id")
     public ResponseEntity<DocumentResponse> findById(@PathVariable Long id) {
         return ResponseEntity.ok(documentService.findById(id));
     }
 
-    // ── PUT /api/documents/{id} ───────────────────────────────────────────────
+    // ── PUT /api/documents/{id}
     @PutMapping(value = "/api/documents/{id}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Modifier un document")
@@ -69,7 +69,7 @@ public class DocumentController {
         return ResponseEntity.ok(documentService.update(id, request, fichier));
     }
 
-    // ── DELETE /api/documents/{id} ────────────────────────────────────────────
+    //  DELETE /api/documents/{id}
     @DeleteMapping("/api/documents/{id}")
     @Operation(summary = "Supprimer un document et son fichier")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
@@ -77,7 +77,7 @@ public class DocumentController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── GET /api/documents/{id}/download ──────────────────────────────────────
+    //  GET /api/documents/{id}/download
     @GetMapping("/api/documents/{id}/download")
     @Operation(summary = "Télécharger le fichier d'un document")
     public ResponseEntity<Resource> download(@PathVariable Long id) {

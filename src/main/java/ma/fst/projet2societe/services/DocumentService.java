@@ -11,7 +11,10 @@ public interface DocumentService {
     DocumentResponse create(Long projetId, DocumentRequest request, MultipartFile fichier);
     DocumentResponse update(Long id, DocumentRequest request, MultipartFile fichier);
     DocumentResponse findById(Long id);
-    List<DocumentResponse> findByProjet(Long projetId);
+    List<DocumentResponse> findByProject(Long projectId);
+
+
+
     void delete(Long id);
     Resource download(Long id);
 }

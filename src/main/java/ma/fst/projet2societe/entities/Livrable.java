@@ -24,5 +24,9 @@ public class Livrable {
     @JoinColumn(name = "idPhase")
     private Phase phase ;
 
+    private String nomFichier;
+    private String contentType;
+    private Long   tailleFichier;
+
 
 }
