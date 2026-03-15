@@ -178,10 +178,7 @@ public class PhaseServiceImpl implements PhaseService {
         }
     }
 
-    /**
-     * Règle 2 : somme des montants des phases <= montant du projet.
-     * excludePhaseId : phase à exclure du calcul lors d'un update (null pour un create).
-     */
+
     private void validerMontant(Long projetId, Double nouveauMontant, Long excludePhaseId) {
 
         Project projet = projetRepository.findById(projetId)
