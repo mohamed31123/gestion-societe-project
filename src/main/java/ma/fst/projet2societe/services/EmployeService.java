@@ -1,6 +1,8 @@
 package ma.fst.projet2societe.services;
 
 import ma.fst.projet2societe.entities.Employe;
+import ma.fst.projet2societe.exceptions.DuplicateResourceException;
+import ma.fst.projet2societe.exceptions.ResourceNotFoundException;
 import ma.fst.projet2societe.repositories.EmployeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,18 +21,18 @@ public class EmployeService {
 
     public Employe getById(Long id) {
         return employeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employé non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employé non trouvé"));
     }
 
     public Employe create(Employe employe) {
         if (employeRepository.findByMatricule(employe.getMatricule()).isPresent()) {
-            throw new RuntimeException("Matricule déjà existant");
+            throw new DuplicateResourceException("Matricule déjà existant");
         }
         if (employeRepository.findByLogin(employe.getLogin()).isPresent()) {
-            throw new RuntimeException("Login déjà existant");
+            throw new DuplicateResourceException("Login déjà existant");
         }
         if (employeRepository.findByEmail(employe.getEmail()).isPresent()) {
-            throw new RuntimeException("Email déjà existant");
+            throw new DuplicateResourceException("Email déjà existant");
         }
         return employeRepository.save(employe);
     }
@@ -50,6 +52,9 @@ public class EmployeService {
     }
 
     public void delete(Long id) {
+        if (!employeRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Employé non trouvé avec l'id : " + id);
+        }
         employeRepository.deleteById(id);
     }
 

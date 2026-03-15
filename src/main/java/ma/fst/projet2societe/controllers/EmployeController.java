@@ -2,6 +2,7 @@ package ma.fst.projet2societe.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import ma.fst.projet2societe.entities.Employe;
 import ma.fst.projet2societe.repositories.EmployeRepository;
 import ma.fst.projet2societe.services.EmployeService;
@@ -36,14 +37,14 @@ public class EmployeController {
 
     @Operation(summary = "Créer un nouvel employé")
     @PostMapping
-    public ResponseEntity<Employe> create(@RequestBody Employe employe) {
+    public ResponseEntity<Employe> create(@Valid @RequestBody Employe employe) {
         return ResponseEntity.ok(employeService.create(employe));
     }
 
     @Operation(summary = "Modifier un employé existant")
     @PutMapping("/{id}")
     public ResponseEntity<Employe> update(@PathVariable Long id,
-                                          @RequestBody Employe employe) {
+                                          @Valid @RequestBody Employe employe) {
         return ResponseEntity.ok(employeService.update(id, employe));
     }
 
