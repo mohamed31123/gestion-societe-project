@@ -5,10 +5,11 @@ import ma.fst.projet2societe.dto.PhaseRequest;
 import ma.fst.projet2societe.dto.PhaseResponse;
 import ma.fst.projet2societe.entities.Phase;
 import ma.fst.projet2societe.entities.Project;
+import ma.fst.projet2societe.exceptions.BusinessException;
+import ma.fst.projet2societe.exceptions.ResourceNotFoundException;
 import ma.fst.projet2societe.repositories.PhaseRepository;
 import ma.fst.projet2societe.repositories.ProjectRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,19 +22,12 @@ public class PhaseServiceImpl implements PhaseService {
 
     @Override
     public PhaseResponse create(Long projetId, PhaseRequest request) {
-
-        // 1. Vérifier que le projet existe
         Project projet = projetRepository.findById(projetId)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Projet introuvable avec l'id : " + projetId));
-
-        // 2. Contrôle des dates
         validerDates(request, projet);
-
-        // 3. Contrôle du montant (null = pas d'exclusion, c'est un create)
         validerMontant(projetId, request.getMontant(), null);
 
-        // 4. Construction et sauvegarde
         Phase phase = new Phase();
         phase.setCode(request.getCode());
         phase.setLibelle(request.getLibelle());
@@ -51,17 +45,11 @@ public class PhaseServiceImpl implements PhaseService {
 
     @Override
     public PhaseResponse update(Long id, PhaseRequest request) {
-
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Phase introuvable avec l'id : " + id));
-
         Project projet = phase.getProject();
-
-        // Contrôle des dates
         validerDates(request, projet);
-
-        // Contrôle du montant (on exclut la phase courante du calcul)
         validerMontant(projet.getId(), request.getMontant(), id);
 
         phase.setCode(request.getCode());
@@ -71,16 +59,13 @@ public class PhaseServiceImpl implements PhaseService {
         phase.setDateFin(request.getDateFin());
         phase.setMontant(request.getMontant());
 
-
-
         return mapToResponse(phaseRepository.save(phase));
     }
-
 
     @Override
     public PhaseResponse findById(Long id) {
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Phase introuvable avec l'id : " + id));
         return mapToResponse(phase);
     }
@@ -88,33 +73,28 @@ public class PhaseServiceImpl implements PhaseService {
     @Override
     public List<PhaseResponse> findByProjet(Long projetId) {
         if (!projetRepository.existsById(projetId)) {
-            throw new RuntimeException("Projet introuvable avec l'id : " + projetId);
+            throw new ResourceNotFoundException("Projet introuvable avec l'id : " + projetId);
         }
         return phaseRepository.findByProjectId(projetId)
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
     public void delete(Long id) {
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Phase introuvable avec l'id : " + id));
         phaseRepository.delete(phase);
     }
 
-
     @Override
     public PhaseResponse setRealisation(Long id) {
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Phase introuvable avec l'id : " + id));
-
         if (phase.isEtatRealisation()) {
-            throw new RuntimeException("La phase est déjà marquée comme réalisée");
+            throw new BusinessException("La phase est déjà marquée comme réalisée");
         }
-
         phase.setEtatRealisation(true);
         return mapToResponse(phaseRepository.save(phase));
     }
@@ -122,17 +102,15 @@ public class PhaseServiceImpl implements PhaseService {
     @Override
     public PhaseResponse setFacturation(Long id) {
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Phase introuvable avec l'id : " + id));
-
         if (!phase.isEtatRealisation()) {
-            throw new RuntimeException(
+            throw new BusinessException(
                     "Impossible de facturer : la phase doit d'abord être réalisée");
         }
         if (phase.isEtatFacturation()) {
-            throw new RuntimeException("La phase est déjà facturée");
+            throw new BusinessException("La phase est déjà facturée");
         }
-
         phase.setEtatFacturation(true);
         return mapToResponse(phaseRepository.save(phase));
     }
@@ -140,62 +118,48 @@ public class PhaseServiceImpl implements PhaseService {
     @Override
     public PhaseResponse setPaiement(Long id) {
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Phase introuvable avec l'id : " + id));
-
         if (!phase.isEtatFacturation()) {
-            throw new RuntimeException(
+            throw new BusinessException(
                     "Impossible de payer : la phase doit d'abord être facturée");
         }
         if (phase.isEtatPaiement()) {
-            throw new RuntimeException("La phase est déjà payée");
+            throw new BusinessException("La phase est déjà payée");
         }
-
         phase.setEtatPaiement(true);
         return mapToResponse(phaseRepository.save(phase));
     }
 
-
-
-
     private void validerDates(PhaseRequest request, Project projet) {
-
         if (request.getDateDebut().after(request.getDateFin())) {
-            throw new RuntimeException(
+            throw new BusinessException(
                     "La date de début de la phase doit être avant sa date de fin");
         }
-
         if (request.getDateDebut().before(projet.getDateDebut())) {
-            throw new RuntimeException(
+            throw new BusinessException(
                     "La date de début de la phase (" + request.getDateDebut() + ")" +
                             " est antérieure à la date de début du projet (" + projet.getDateDebut() + ")");
         }
-
         if (request.getDateFin().after(projet.getDateFin())) {
-            throw new RuntimeException(
+            throw new BusinessException(
                     "La date de fin de la phase (" + request.getDateFin() + ")" +
                             " dépasse la date de fin du projet (" + projet.getDateFin() + ")");
         }
     }
 
-
     private void validerMontant(Long projetId, Double nouveauMontant, Long excludePhaseId) {
-
         Project projet = projetRepository.findById(projetId)
-                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable"));
         double sommeExistante = phaseRepository.findByProjectId(projetId)
                 .stream()
                 .filter(p -> excludePhaseId == null || !p.getId().equals(excludePhaseId))
-                .mapToDouble(Phase::getMontant)
-                .sum();
-
+                .mapToDouble(Phase::getMontant).sum();
         double totalApres = sommeExistante + nouveauMontant;
-
         if (totalApres > projet.getMontant()) {
             double restant = projet.getMontant() - sommeExistante;
-            throw new RuntimeException(
-                    "Le montant de la phase (" + nouveauMontant + ") dépasse le budget restant du projet." +
+            throw new BusinessException(
+                    "Le montant de la phase (" + nouveauMontant + ") dépasse le budget restant." +
                             " | Budget total : " + projet.getMontant() +
                             " | Déjà alloué : " + sommeExistante +
                             " | Restant disponible : " + restant);
@@ -214,13 +178,10 @@ public class PhaseServiceImpl implements PhaseService {
         response.setEtatRealisation(phase.isEtatRealisation());
         response.setEtatFacturation(phase.isEtatFacturation());
         response.setEtatPaiement(phase.isEtatPaiement());
-
         if (phase.getProject() != null) {
             response.setProjetId(phase.getProject().getId());
             response.setProjetCode(phase.getProject().getCode());
-
         }
-
         return response;
     }
 }

@@ -1,6 +1,7 @@
 package ma.fst.projet2societe.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ma.fst.projet2societe.dto.LivrableRequest;
 import ma.fst.projet2societe.dto.LivrableResponse;
 import ma.fst.projet2societe.service.LivrableService;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Livrables", description = "Gestion des livrables d'une phase")
 public class LivrableController {
 
     private final LivrableService livrableService;

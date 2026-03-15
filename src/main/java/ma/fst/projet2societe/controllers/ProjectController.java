@@ -1,6 +1,7 @@
 package ma.fst.projet2societe.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ma.fst.projet2societe.dto.ProjectRequest;
 import ma.fst.projet2societe.dto.ProjectResponse;
 import ma.fst.projet2societe.dto.ProjectResume;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
+@Tag(name = "Projets", description = "Gestion des projets")
 public class ProjectController {
 
     private final ProjectService projectService;

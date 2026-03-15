@@ -3,6 +3,7 @@ package ma.fst.projet2societe.controllers;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ma.fst.projet2societe.dto.OrganismeRequest;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/organismes")
 @RequiredArgsConstructor
+@Tag(name = "Organismes", description = "Gestion des organismes clients")
 public class OrganismeController {
 
 
