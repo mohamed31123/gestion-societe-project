@@ -33,7 +33,7 @@ public class Phase {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProject")
+    @JoinColumn(name = "id_project")
 
     private Project project;
 
