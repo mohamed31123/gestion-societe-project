@@ -2,6 +2,9 @@ package ma.fst.projet2societe.services;
 
 import ma.fst.projet2societe.entities.*;
 import ma.fst.projet2societe.dto.AffectationDTO;
+import ma.fst.projet2societe.exceptions.BusinessException;
+import ma.fst.projet2societe.exceptions.DuplicateResourceException;
+import ma.fst.projet2societe.exceptions.ResourceNotFoundException;
 import ma.fst.projet2societe.repositories.AffectationRepository;
 import ma.fst.projet2societe.repositories.EmployeRepository;
 import ma.fst.projet2societe.repositories.PhaseRepository;
@@ -26,26 +29,26 @@ public class AffectationService {
     public Affectation affecter(AffectationDTO dto) {
 
         Employe employe = employeRepository.findById(dto.getEmployeId())
-                .orElseThrow(() -> new RuntimeException("Employé non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employé non trouvé"));
 
         Phase phase = phaseRepository.findById(dto.getPhaseId())
-                .orElseThrow(() -> new RuntimeException("Phase non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Phase non trouvée"));
 
         // 1. Pas de doublon
         AffectationId affectationId = new AffectationId(dto.getEmployeId(), dto.getPhaseId());
         if (affectationRepository.existsById(affectationId)) {
-            throw new RuntimeException("Affectation déjà existante");
+            throw new DuplicateResourceException("Affectation déjà existante");
         }
 
         // 2. Cohérence des dates
         if (dto.getDatedebut().after(dto.getDatefin())) {
-            throw new RuntimeException("La date début doit être avant la date fin");
+            throw new BusinessException("La date début doit être avant la date fin");
         }
 
         // 3. Dates incluses dans la phase
         if (dto.getDatedebut().before(phase.getDateDebut()) ||
                 dto.getDatefin().after(phase.getDateFin())) {
-            throw new RuntimeException("Les dates d'affectation doivent être incluses dans la phase");
+            throw new BusinessException("Les dates d'affectation doivent être incluses dans la phase");
         }
 
         // 4. Employé disponible sur la période
@@ -57,7 +60,7 @@ public class AffectationService {
         boolean estDisponible = disponibles.stream()
                 .anyMatch(e -> e.getId().equals(dto.getEmployeId()));
         if (!estDisponible) {
-            throw new RuntimeException("Employé non disponible sur cette période");
+            throw new BusinessException("Employé non disponible sur cette période");
         }
 
         // Créer l'affectation
@@ -85,7 +88,7 @@ public class AffectationService {
     public void supprimer(Long employeId, Long phaseId) {
         AffectationId affectationId = new AffectationId(employeId, phaseId);
         if (!affectationRepository.existsById(affectationId)) {
-            throw new RuntimeException("Affectation non trouvée");
+            throw new ResourceNotFoundException("Affectation non trouvée");
         }
         affectationRepository.deleteById(affectationId);
     }
@@ -94,14 +97,14 @@ public class AffectationService {
     public Affectation modifier(Long employeId, Long phaseId, AffectationDTO dto) {
         AffectationId affectationId = new AffectationId(employeId, phaseId);
         Affectation existing = affectationRepository.findById(affectationId)
-                .orElseThrow(() -> new RuntimeException("Affectation non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Affectation non trouvée"));
         existing.setDatedebut(dto.getDatedebut());
         existing.setDatefin(dto.getDatefin());
         return affectationRepository.save(existing);
     }
     public Affectation getByPhaseAndEmploye(Long phaseId, Long employeId) {
         return affectationRepository.findByPhaseIdAndEmployeId(phaseId, employeId)
-                .orElseThrow(() -> new RuntimeException("Affectation non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Affectation non trouvée"));
     }
 
 }

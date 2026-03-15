@@ -2,6 +2,7 @@ package ma.fst.projet2societe.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import ma.fst.projet2societe.dto.AffectationDTO;
 import ma.fst.projet2societe.entities.Affectation;
 import ma.fst.projet2societe.services.AffectationService;
@@ -24,7 +25,7 @@ public class AffectationController {
     public ResponseEntity<Affectation> affecter(
             @PathVariable Long phaseId,
             @PathVariable Long employeId,
-            @RequestBody AffectationDTO dto) {
+            @Valid @RequestBody AffectationDTO dto) {
         dto.setPhaseId(phaseId);
         dto.setEmployeId(employeId);
         return ResponseEntity.ok(affectationService.affecter(dto));
@@ -48,7 +49,7 @@ public class AffectationController {
     public ResponseEntity<Affectation> modifier(
             @PathVariable Long phaseId,
             @PathVariable Long employeId,
-            @RequestBody AffectationDTO dto) {
+           @Valid @RequestBody AffectationDTO dto) {
         return ResponseEntity.ok(affectationService.modifier(employeId, phaseId, dto));
     }
 

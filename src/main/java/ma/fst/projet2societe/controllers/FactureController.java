@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @CrossOrigin("*")
@@ -22,7 +23,7 @@ public class FactureController {
     @PostMapping("/api/phases/{phaseId}/facture")
     public ResponseEntity<FactureDTO> create(
             @PathVariable Long phaseId,
-            @RequestBody FactureDTO dto) {
+            @Valid @RequestBody FactureDTO dto) {
         return ResponseEntity.ok(factureService.create(phaseId, dto));
     }
 
@@ -45,7 +46,7 @@ public class FactureController {
     @PutMapping("/api/factures/{id}")
     public ResponseEntity<FactureDTO> update(
             @PathVariable Long id,
-            @RequestBody FactureDTO dto) {
+             @Valid @RequestBody FactureDTO dto) {
         return ResponseEntity.ok(factureService.update(id, dto));
     }
 

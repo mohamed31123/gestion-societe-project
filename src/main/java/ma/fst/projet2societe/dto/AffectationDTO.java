@@ -1,5 +1,6 @@
 package ma.fst.projet2societe.dto;
 
+import jakarta.validation.constraints.*;
 import lombok.*;
 import java.util.Date;
 
@@ -10,7 +11,10 @@ import java.util.Date;
 public class AffectationDTO {
     private Long employeId;
     private Long phaseId;
-    private Date datedebut;
-    private Date datefin;
 
+    @NotNull(message = "La date de début est obligatoire")
+    private Date datedebut;
+
+    @NotNull(message = "La date de fin est obligatoire")
+    private Date datefin;
 }

@@ -22,7 +22,7 @@ public class DocumentController {
     private final DocumentService documentService;
 
     //  POST /api/projects/{projectId}/documents
-
+    @Operation(summary = "Créer un document pour un projet")
     @PostMapping(value = "/api/projects/{projetcId}/documents",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DocumentResponse> create(
