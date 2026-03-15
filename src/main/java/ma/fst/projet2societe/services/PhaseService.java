@@ -15,7 +15,7 @@ public interface PhaseService {
     void delete(Long id);
 
 
-    PhaseResponse setRealisation(Long id);   // PATCH /phases/{id}/realisation
-    PhaseResponse setFacturation(Long id);   // PATCH /phases/{id}/facturation
-    PhaseResponse setPaiement(Long id);      // PATCH /phases/{id}/paiement
+    PhaseResponse setRealisation(Long id);
+    PhaseResponse setFacturation(Long id);
+    PhaseResponse setPaiement(Long id);
 }
