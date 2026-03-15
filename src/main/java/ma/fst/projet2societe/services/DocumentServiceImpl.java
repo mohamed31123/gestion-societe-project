@@ -14,6 +14,8 @@ import org.springframework.core.io.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @Service
 @RequiredArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
@@ -35,7 +37,7 @@ public class DocumentServiceImpl implements DocumentService {
         document.setCode(request.getCode());
         document.setLibelle(request.getLibelle());
         document.setDescription(request.getDescteption());
-        document.setProjet(projet);
+        document.setProject(projet);
 
         return mapToResponse(documentRepository.save(document));
     }
@@ -73,7 +75,7 @@ public class DocumentServiceImpl implements DocumentService {
         if (!projectRepository.existsById(projetId)) {
             throw new RuntimeException("Projet introuvable avec l'id : " + projetId);
         }
-        return documentRepository.findByProjetId(projetId)
+        return documentRepository.findByProjectId(projetId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -109,9 +111,9 @@ public class DocumentServiceImpl implements DocumentService {
         response.setLibelle(doc.getLibelle());
         response.setDescteption(doc.getDescription());
 
-        if (doc.getProjet() != null) {
-            response.setProjetId(doc.getProjet().getId());
-            response.setProjetNom(doc.getProjet().getNom());
+        if (doc.getProject() != null) {
+            response.setProjetId(doc.getProject().getId());
+            response.setProjetNom(doc.getProject().getNom());
         }
 
         return response;

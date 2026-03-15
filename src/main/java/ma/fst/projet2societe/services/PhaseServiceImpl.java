@@ -19,9 +19,6 @@ public class PhaseServiceImpl implements PhaseService {
     private final PhaseRepository phaseRepository;
     private final ProjectRepository projetRepository;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CREATE
-    // ─────────────────────────────────────────────────────────────────────────
     @Override
     public PhaseResponse create(Long projetId, PhaseRequest request) {
 
@@ -47,14 +44,11 @@ public class PhaseServiceImpl implements PhaseService {
         phase.setEtatRealisation(false);
         phase.setEtatFacturation(false);
         phase.setEtatPaiement(false);
-        phase.setProject(projet);          // ← adapte selon le nom de ton champ
+        phase.setProject(projet);
 
         return mapToResponse(phaseRepository.save(phase));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // UPDATE
-    // ─────────────────────────────────────────────────────────────────────────
     @Override
     public PhaseResponse update(Long id, PhaseRequest request) {
 
@@ -82,9 +76,7 @@ public class PhaseServiceImpl implements PhaseService {
         return mapToResponse(phaseRepository.save(phase));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // READ
-    // ─────────────────────────────────────────────────────────────────────────
+
     @Override
     public PhaseResponse findById(Long id) {
         Phase phase = phaseRepository.findById(id)
@@ -104,9 +96,6 @@ public class PhaseServiceImpl implements PhaseService {
                 .collect(Collectors.toList());
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // DELETE
-    // ─────────────────────────────────────────────────────────────────────────
     @Override
     public void delete(Long id) {
         Phase phase = phaseRepository.findById(id)
@@ -115,9 +104,7 @@ public class PhaseServiceImpl implements PhaseService {
         phaseRepository.delete(phase);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // CHANGEMENTS D'ÉTAT — ordre obligatoire : realisation → facturation → paiement
-    // ─────────────────────────────────────────────────────────────────────────
+
     @Override
     public PhaseResponse setRealisation(Long id) {
         Phase phase = phaseRepository.findById(id)
@@ -168,16 +155,9 @@ public class PhaseServiceImpl implements PhaseService {
         return mapToResponse(phaseRepository.save(phase));
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // VALIDATIONS MÉTIER PRIVÉES
-    // ─────────────────────────────────────────────────────────────────────────
 
-    /**
-     * Règle 1 : les dates de la phase doivent être dans l'intervalle du projet.
-     *   dateDebut phase >= dateDebut projet
-     *   dateFin   phase <= dateFin   projet
-     *   dateDebut phase <  dateFin   phase
-     */
+
+
     private void validerDates(PhaseRequest request, Project projet) {
 
         if (request.getDateDebut().after(request.getDateFin())) {
@@ -225,9 +205,6 @@ public class PhaseServiceImpl implements PhaseService {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // MAPPER entité → DTO
-    // ─────────────────────────────────────────────────────────────────────────
     private PhaseResponse mapToResponse(Phase phase) {
         PhaseResponse response = new PhaseResponse();
         response.setId(phase.getId());
