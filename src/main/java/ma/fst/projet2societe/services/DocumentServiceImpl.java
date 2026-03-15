@@ -25,17 +25,17 @@ public class DocumentServiceImpl implements DocumentService {
     // CREATE
     // ─────────────────────────────────────────────────────────────────────────
     @Override
-    public DocumentResponse create(Long projetId, DocumentRequest request, MultipartFile fichier) {
+    public DocumentResponse create(Long projectId, DocumentRequest request, MultipartFile fichier) {
 
-        Project projet = projectRepository.findById(projetId)
+        Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException(
-                        "Projet introuvable avec l'id : " + projetId));
+                        "Projet introuvable avec l'id : " + projectId));
 
         Document document = new Document();
         document.setCode(request.getCode());
         document.setLibelle(request.getLibelle());
         document.setDescription(request.getDescteption());
-        document.setProjet(projet);
+        document.setProject(project);
 
         return mapToResponse(documentRepository.save(document));
     }
@@ -69,11 +69,11 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<DocumentResponse> findByProjet(Long projetId) {
-        if (!projectRepository.existsById(projetId)) {
-            throw new RuntimeException("Projet introuvable avec l'id : " + projetId);
+    public List<DocumentResponse> findByProject(Long projectId) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new RuntimeException("Projet introuvable avec l'id : " + projectId);
         }
-        return documentRepository.findByProjetId(projetId)
+        return documentRepository.findByProjectId(projectId)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -109,9 +109,9 @@ public class DocumentServiceImpl implements DocumentService {
         response.setLibelle(doc.getLibelle());
         response.setDescteption(doc.getDescription());
 
-        if (doc.getProjet() != null) {
-            response.setProjetId(doc.getProjet().getId());
-            response.setProjetNom(doc.getProjet().getNom());
+        if (doc.getProject() != null) {
+            response.setProjectId(doc.getProject().getId());
+            response.setProjectNom(doc.getProject().getNom());
         }
 
         return response;
