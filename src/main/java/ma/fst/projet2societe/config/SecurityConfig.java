@@ -106,7 +106,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/reporting/**").hasAnyRole("DIRECTEUR", "ADMIN", "COMPTABLE")
 
                         // Tout le reste : authentifié
-                        .anyRequest().authenticated()
+                        //Temporairement pour tester
+                        .anyRequest().permitAll()
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -30,7 +30,7 @@ public class Employe {
     private String password;
 
     @ManyToOne
-    @JoinColumn(name = "idProfil")
+    @JoinColumn(name = "id_profil")
     private Profil profil;
 
     //la relation entre projet et employe
