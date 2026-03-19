@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import ma.fst.projet2societe.dto.PhaseReportDTO;
 import ma.fst.projet2societe.dto.ProjectReportDTO;
 import ma.fst.projet2societe.dto.TableauDeBordDTO;
-import ma.fst.projet2societe.service.ReportingService;
+import ma.fst.projet2societe.services.ReportingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

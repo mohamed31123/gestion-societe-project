@@ -13,10 +13,6 @@ public class DocumentRequest {
     @NotBlank(message = "Le libelle est obligatoire")
     private String libelle;
 
-    @Size(max = 50, message = "La description ne doit pas dépasser 50 caractères")
-    private String descteption;
-
-
-    // il vient du @PathVariable projetId dans l'URL
-    // POST /api/projets/{projetId}/documents
+    @Size(max = 500, message = "La description ne doit pas dépasser 500 caractères")
+    private String description;
 }
