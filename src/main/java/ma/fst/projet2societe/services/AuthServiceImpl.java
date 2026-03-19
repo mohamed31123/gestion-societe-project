@@ -29,42 +29,6 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public LoginResponse login(LoginRequest request) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getLogin(),
-                            request.getPassword()
-                    )
-            );
-        } catch (Exception e) {
-            throw new BadCredentialsException("Login ou mot de passe incorrect");
-        }
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getLogin());
-        String token = jwtUtils.generateToken(userDetails);
-
-        Employe employe = employeRepository.findByLogin(request.getLogin())
-                .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
-
-        String role = userDetails.getAuthorities().stream()
-                .findFirst()
-                .map(a -> a.getAuthority().replace("ROLE_", ""))
-                .orElse("USER");
-
-        return LoginResponse.builder()
-                .token(token)
-                .type("Bearer")
-                .id(employe.getId())
-                .login(employe.getLogin())
-                .nom(employe.getNom())
-                .prenom(employe.getPrenom())
-                .email(employe.getEmail())
-                .role(role)
-                .build();
-    }
-
-    @Override
     public MeResponse getMe(String login) {
         Employe employe = employeRepository.findByLogin(login)
                 .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
@@ -96,17 +60,45 @@ public class AuthServiceImpl implements AuthService {
         Employe employe = employeRepository.findByLogin(login)
                 .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
 
-        // Vérifier l'ancien mot de passe
         if (!passwordEncoder.matches(request.getAncienPassword(), employe.getPassword())) {
             throw new BusinessException("L'ancien mot de passe est incorrect");
         }
 
-        // Vérifier la confirmation
         if (!request.getNouveauPassword().equals(request.getConfirmPassword())) {
             throw new BusinessException("La confirmation du mot de passe ne correspond pas");
         }
 
         employe.setPassword(passwordEncoder.encode(request.getNouveauPassword()));
         employeRepository.save(employe);
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest request) {
+
+        Employe employe = employeRepository.findByLogin(request.getLogin())
+                .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
+
+        System.out.println("=== PASSWORD EN BASE : " + employe.getPassword());
+        System.out.println("=== MATCH : " + passwordEncoder.matches(request.getPassword(), employe.getPassword()));
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getLogin(),
+                            request.getPassword()
+                    )
+            );
+
+        } catch (BadCredentialsException e) {
+            throw new BusinessException("Login ou mot de passe incorrect");
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getLogin());
+
+        String token = jwtUtils.generateToken(userDetails);
+
+        return LoginResponse.builder()
+                .token(token)
+                .build();
     }
 }

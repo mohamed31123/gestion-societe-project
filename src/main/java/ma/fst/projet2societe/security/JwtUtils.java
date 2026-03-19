@@ -6,12 +6,15 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
@@ -32,8 +35,16 @@ public class JwtUtils {
     }
 
     public String generateToken(UserDetails userDetails) {
+
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("roles", userDetails.getAuthorities().toString());
+
+        List<String> roles = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        extraClaims.put("roles", roles);
+
         return generateToken(extraClaims, userDetails);
     }
 
