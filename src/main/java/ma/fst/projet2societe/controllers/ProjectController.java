@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import ma.fst.projet2societe.dto.ProjectRequest;
 import ma.fst.projet2societe.dto.ProjectResponse;
 import ma.fst.projet2societe.dto.ProjectResume;
-import ma.fst.projet2societe.service.ProjectService;
+import ma.fst.projet2societe.services.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

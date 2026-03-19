@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ma.fst.projet2societe.dto.LivrableRequest;
 import ma.fst.projet2societe.dto.LivrableResponse;
-import ma.fst.projet2societe.service.LivrableService;
+import ma.fst.projet2societe.services.LivrableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;

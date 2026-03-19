@@ -4,9 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-public class EmployeDTO {
-
-    private Long id;
+public class EmployeCreateRequest {
 
     @NotBlank(message = "Le matricule est obligatoire")
     private String matricule;
@@ -26,6 +24,10 @@ public class EmployeDTO {
 
     @NotBlank(message = "Le login est obligatoire")
     private String login;
+
+    @NotBlank(message = "Le mot de passe est obligatoire")
+    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères")
+    private String password;
 
     private Long profilId;
 }

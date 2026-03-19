@@ -23,6 +23,7 @@ public class Document {
     private String description;
 
     private String chemin;
+    private String nomFichier ;
 
     @ManyToOne
     @JoinColumn(name = "project_id")

@@ -1,4 +1,4 @@
-package ma.fst.projet2societe.service;
+package ma.fst.projet2societe.services;
 
 import ma.fst.projet2societe.dto.PhaseReportDTO;
 import ma.fst.projet2societe.dto.ProjectReportDTO;

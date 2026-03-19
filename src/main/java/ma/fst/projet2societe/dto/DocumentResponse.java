@@ -9,7 +9,7 @@ public class DocumentResponse {
     private Long id;
     private String code;
     private String libelle;
-    private String descteption;
+    private String description;
     private String nomFichier;
     private Long tailleFichier;
     private LocalDateTime dateUpload;
