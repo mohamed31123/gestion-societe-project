@@ -19,6 +19,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -37,72 +42,84 @@ public class SecurityConfig {
             "/v3/api-docs/**"
     };
 
+    // -------------------------------------------------------
+    // FIX #1: Global CORS bean — covers ALL controllers.
+    // Previously only 5 out of 10 controllers had @CrossOrigin("*"),
+    // meaning PhaseController, ProjectController, LivrableController,
+    // OrganismeController, ReportingController would all FAIL from a browser.
+    // -------------------------------------------------------
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Disposition"));
+        config.setAllowCredentials(false);
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // FIX: attach CORS
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
-                        // ----- Public -----
                         .requestMatchers(PUBLIC_URLS).permitAll()
 
-                        // ----- Employes : ADMIN seulement -----
+                        // Employes
                         .requestMatchers(HttpMethod.POST,   "/api/employes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/employes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/employes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,    "/api/employes/**").hasAnyRole("ADMIN", "DIRECTEUR")
 
-                        // ----- Organismes : SECRETAIRE + ADMIN -----
+                        // Organismes
                         .requestMatchers(HttpMethod.POST,   "/api/organismes/**").hasAnyRole("SECRETAIRE", "ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/organismes/**").hasAnyRole("SECRETAIRE", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/organismes/**").hasAnyRole("SECRETAIRE", "ADMIN")
                         .requestMatchers(HttpMethod.GET,    "/api/organismes/**").hasAnyRole("SECRETAIRE", "ADMIN", "DIRECTEUR")
 
-                        // ----- FIX: was "/api/projets/**" but controller uses "/api/projects" -----
+                        // FIX #2: was "/api/projets/**" — controller uses "/api/projects"
                         .requestMatchers(HttpMethod.POST,   "/api/projects/**").hasAnyRole("SECRETAIRE", "ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/projects/**").hasAnyRole("SECRETAIRE", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/projects/**").hasAnyRole("SECRETAIRE", "ADMIN")
-                        .requestMatchers(HttpMethod.GET,    "/api/projects/**")
-                        .hasAnyRole("SECRETAIRE", "ADMIN", "DIRECTEUR", "CHEF_PROJET")
+                        .requestMatchers(HttpMethod.GET,    "/api/projects/**").hasAnyRole("SECRETAIRE", "ADMIN", "DIRECTEUR", "CHEF_PROJET")
 
-                        // ----- Phases : CHEF_PROJET + ADMIN -----
+                        // Phases (nested under /api/projets/{id}/phases AND standalone /api/phases)
                         .requestMatchers(HttpMethod.POST,   "/api/projets/*/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH,  "/api/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN", "COMPTABLE")
                         .requestMatchers(HttpMethod.DELETE, "/api/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN")
-                        .requestMatchers(HttpMethod.GET,    "/api/phases/**")
-                        .hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR", "COMPTABLE")
-                        .requestMatchers(HttpMethod.GET,    "/api/projets/*/phases/**")
-                        .hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR", "COMPTABLE")
+                        .requestMatchers(HttpMethod.GET,    "/api/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR", "COMPTABLE")
+                        .requestMatchers(HttpMethod.GET,    "/api/projets/*/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR", "COMPTABLE")
 
-                        // ----- Affectations : CHEF_PROJET -----
-                        .requestMatchers("/api/phases/*/employes/**")
-                        .hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR")
+                        // Affectations
+                        .requestMatchers("/api/phases/*/employes/**").hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR")
 
-                        // ----- Livrables : CHEF_PROJET -----
+                        // Livrables
                         .requestMatchers(HttpMethod.POST,   "/api/phases/*/livrables/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/livrables/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/livrables/**").hasAnyRole("CHEF_PROJET", "ADMIN")
-                        .requestMatchers(HttpMethod.GET,    "/api/livrables/**")
-                        .hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR")
+                        .requestMatchers(HttpMethod.GET,    "/api/livrables/**").hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR")
 
-                        // ----- Documents : SECRETAIRE + CHEF_PROJET -----
-                        .requestMatchers(HttpMethod.POST,   "/api/projets/*/documents/**")
-                        .hasAnyRole("SECRETAIRE", "CHEF_PROJET", "ADMIN")
-                        .requestMatchers(HttpMethod.GET,    "/api/documents/**")
-                        .hasAnyRole("SECRETAIRE", "CHEF_PROJET", "ADMIN", "DIRECTEUR")
+                        // Documents
+                        .requestMatchers(HttpMethod.POST,   "/api/projets/*/documents/**").hasAnyRole("SECRETAIRE", "CHEF_PROJET", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,    "/api/documents/**").hasAnyRole("SECRETAIRE", "CHEF_PROJET", "ADMIN", "DIRECTEUR")
                         .requestMatchers(HttpMethod.DELETE, "/api/documents/**").hasAnyRole("ADMIN")
 
-                        // ----- Factures : COMPTABLE -----
-                        .requestMatchers("/api/factures/**", "/api/phases/*/facture/**")
-                        .hasAnyRole("COMPTABLE", "ADMIN", "DIRECTEUR")
+                        // Factures
+                        .requestMatchers("/api/factures/**", "/api/phases/*/facture/**").hasAnyRole("COMPTABLE", "ADMIN", "DIRECTEUR")
 
-                        // ----- Reporting : DIRECTEUR + ADMIN -----
+                        // Reporting
                         .requestMatchers("/api/reporting/**").hasAnyRole("DIRECTEUR", "ADMIN", "COMPTABLE")
 
-                        // FIX: was .permitAll() — now requires authentication for everything else
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
@@ -120,8 +137,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 

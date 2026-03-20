@@ -3,12 +3,12 @@ package ma.fst.projet2societe.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
+@Table(name = "phase")
 @Getter
 @Setter
 @ToString(exclude = {"project", "livrables", "factures", "affectations"})
@@ -31,21 +31,16 @@ public class Phase {
     private boolean etatFacturation;
     private boolean etatPaiement;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_project")
-
+    @JoinColumn(name = "project_id")
     private Project project;
 
     @OneToMany(mappedBy = "phase")
-    private List<Livrable> livrables =  new ArrayList<>();
+    private List<Livrable> livrables = new ArrayList<>();
 
     @OneToMany(mappedBy = "phase")
     private List<Facture> factures = new ArrayList<>();
 
-
     @OneToMany(mappedBy = "phase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Affectation> affectations = new ArrayList<>();
-
 }
-

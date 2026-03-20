@@ -37,8 +37,7 @@ public class AuthServiceImpl implements AuthService {
         String profilCode = null;
         if (employe.getProfil() != null) {
             role = employe.getProfil().getLibelle() != null
-                    ? employe.getProfil().getLibelle().toUpperCase()
-                    : "USER";
+                    ? employe.getProfil().getLibelle().toUpperCase() : "USER";
             profilCode = employe.getProfil().getCode();
         }
 
@@ -63,7 +62,6 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(request.getAncienPassword(), employe.getPassword())) {
             throw new BusinessException("L'ancien mot de passe est incorrect");
         }
-
         if (!request.getNouveauPassword().equals(request.getConfirmPassword())) {
             throw new BusinessException("La confirmation du mot de passe ne correspond pas");
         }
@@ -74,23 +72,35 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        // FIX: removed debug System.out.println that printed password hash to console
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getLogin(),
-                            request.getPassword()
-                    )
+                    new UsernamePasswordAuthenticationToken(request.getLogin(), request.getPassword())
             );
         } catch (BadCredentialsException e) {
             throw new BusinessException("Login ou mot de passe incorrect");
         }
 
+        // FIX: populate all LoginResponse fields so the frontend gets user info on login
+        // without needing a second GET /api/auth/me call
+        Employe employe = employeRepository.findByLogin(request.getLogin())
+                .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getLogin());
         String token = jwtUtils.generateToken(userDetails);
 
+        String role = "USER";
+        if (employe.getProfil() != null && employe.getProfil().getLibelle() != null) {
+            role = employe.getProfil().getLibelle().toUpperCase();
+        }
+
         return LoginResponse.builder()
                 .token(token)
+                .id(employe.getId())
+                .login(employe.getLogin())
+                .nom(employe.getNom())
+                .prenom(employe.getPrenom())
+                .email(employe.getEmail())
+                .role(role)
                 .build();
     }
 }
