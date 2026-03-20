@@ -4,6 +4,9 @@ import ma.fst.projet2societe.dto.ProjectRequest;
 import ma.fst.projet2societe.dto.ProjectResponse;
 import ma.fst.projet2societe.dto.ProjectResume;
 import ma.fst.projet2societe.entities.*;
+import ma.fst.projet2societe.exceptions.BusinessException;
+import ma.fst.projet2societe.exceptions.DuplicateResourceException;
+import ma.fst.projet2societe.exceptions.ResourceNotFoundException;
 import ma.fst.projet2societe.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +23,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final OrganismeRepository organismeRepository;
     private final EmployeRepository employeRepository;
-
 
     private ProjectResponse toResponse(Project project) {
         ProjectResponse response = new ProjectResponse();
@@ -49,7 +51,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         return response;
     }
-
 
     private ProjectResume toResume(Project project) {
         ProjectResume dto = new ProjectResume();
@@ -81,25 +82,21 @@ public class ProjectServiceImpl implements ProjectService {
         return dto;
     }
 
-
     @Override
     public ProjectResponse create(ProjectRequest request) {
 
-        //  code unique
         if (projectRepository.findByCode(request.getCode()).isPresent())
-            throw new RuntimeException("Code projet déjà utilisé : " + request.getCode());
+            throw new DuplicateResourceException("Code projet déjà utilisé : " + request.getCode());
 
-        // dates cohérentes
         if (request.getDateDebut().after(request.getDateFin()))
-            throw new RuntimeException("La date de début doit être avant la date de fin");
+            throw new BusinessException("La date de début doit être avant la date de fin");
 
-        //  organisme existant
+        // FIX: use ResourceNotFoundException
         Organisme organisme = organismeRepository.findById(request.getOrganismeId())
-                .orElseThrow(() -> new RuntimeException("Organisme introuvable : " + request.getOrganismeId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable : " + request.getOrganismeId()));
 
-        //  chef de projet existant
         Employe chefProjet = employeRepository.findById(request.getChefProjectId())
-                .orElseThrow(() -> new RuntimeException(" Employé introuvable : " + request.getChefProjectId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable : " + request.getChefProjectId()));
 
         Project project = new Project();
         project.setCode(request.getCode());
@@ -114,30 +111,24 @@ public class ProjectServiceImpl implements ProjectService {
         return toResponse(projectRepository.save(project));
     }
 
-
     @Override
     public ProjectResponse update(Long id, ProjectRequest request) {
 
-        // 1. projet existant
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project introuvable : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable : " + id));
 
-        // 2. si le code change, vérifier unicité
         if (!project.getCode().equals(request.getCode()) &&
                 projectRepository.findByCode(request.getCode()).isPresent())
-            throw new RuntimeException("Code project déjà utilisé : " + request.getCode());
+            throw new DuplicateResourceException("Code projet déjà utilisé : " + request.getCode());
 
-        // 3. dates cohérentes
         if (request.getDateDebut().after(request.getDateFin()))
-            throw new RuntimeException("La date de début doit être avant la date de fin");
+            throw new BusinessException("La date de début doit être avant la date de fin");
 
-        // 4. organisme existant
         Organisme organisme = organismeRepository.findById(request.getOrganismeId())
-                .orElseThrow(() -> new RuntimeException("Organisme introuvable : " + request.getOrganismeId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable : " + request.getOrganismeId()));
 
-        //  chef de project existant
         Employe chefProject = employeRepository.findById(request.getChefProjectId())
-                .orElseThrow(() -> new RuntimeException("Employé introuvable : " + request.getChefProjectId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable : " + request.getChefProjectId()));
 
         project.setCode(request.getCode());
         project.setNom(request.getNom());
@@ -151,13 +142,12 @@ public class ProjectServiceImpl implements ProjectService {
         return toResponse(projectRepository.save(project));
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public ProjectResponse getProject(Long id) {
         return toResponse(
                 projectRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Project introuvable : " + id))
+                        .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable : " + id))
         );
     }
 
@@ -170,24 +160,23 @@ public class ProjectServiceImpl implements ProjectService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public ProjectResume getResume(Long id) {
         return toResume(
                 projectRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Project introuvable : " + id))
+                        .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable : " + id))
         );
     }
-
 
     @Override
     public void delete(Long id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project introuvable : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable : " + id));
 
+        // FIX: use BusinessException
         if (project.getPhases() != null && !project.getPhases().isEmpty())
-            throw new RuntimeException("Impossible de supprimer un project qui contient des phases");
+            throw new BusinessException("Impossible de supprimer un projet qui contient des phases");
 
         projectRepository.delete(project);
     }

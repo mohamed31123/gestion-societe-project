@@ -49,17 +49,14 @@ public class EmployeService {
     public EmployeDTO update(Long id, EmployeDTO dto) {
         Employe existing = findOrThrow(id);
 
-        // unicité matricule (sauf si c'est le même)
         if (!existing.getMatricule().equals(dto.getMatricule()) &&
                 employeRepository.findByMatricule(dto.getMatricule()).isPresent())
             throw new DuplicateResourceException("Matricule déjà utilisé : " + dto.getMatricule());
 
-        // unicité login
         if (!existing.getLogin().equals(dto.getLogin()) &&
                 employeRepository.findByLogin(dto.getLogin()).isPresent())
             throw new DuplicateResourceException("Login déjà utilisé : " + dto.getLogin());
 
-        // unicité email
         if (!existing.getEmail().equals(dto.getEmail()) &&
                 employeRepository.findByEmail(dto.getEmail()).isPresent())
             throw new DuplicateResourceException("Email déjà utilisé : " + dto.getEmail());
@@ -94,6 +91,20 @@ public class EmployeService {
             throw new BusinessException("dateDebut doit être avant dateFin");
         return employeRepository.findEmployesDisponibles(debut, fin)
                 .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    // FIX: extracted search into service using repository queries — no more in-memory filtering
+    public List<EmployeDTO> search(String nom, String matricule) {
+        if (matricule != null && !matricule.isBlank()) {
+            return employeRepository.findByMatricule(matricule)
+                    .map(e -> List.of(toDTO(e)))
+                    .orElse(List.of());
+        }
+        if (nom != null && !nom.isBlank()) {
+            return employeRepository.findByNomContaining(nom)
+                    .stream().map(this::toDTO).collect(Collectors.toList());
+        }
+        return getAll();
     }
 
     // ---- helpers ----

@@ -9,6 +9,7 @@ import ma.fst.projet2societe.exceptions.ResourceNotFoundException;
 import ma.fst.projet2societe.repositories.EmployeRepository;
 import ma.fst.projet2societe.repositories.OrganismeRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ public class OrganismeServiceImpl implements OrganismeService {
     private final OrganismeRepository organismeRepository;
     private final EmployeRepository employeRepository;
 
+    @Override
     public OrganismeResponse create(OrganismeRequest request) {
         Employe employe = employeRepository.findById(request.getIdEmploye())
                 .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
@@ -33,9 +35,10 @@ public class OrganismeServiceImpl implements OrganismeService {
         return mapToResponse(organismeRepository.save(organisme));
     }
 
+    @Override
     public OrganismeResponse update(Long id, OrganismeRequest request) {
         Organisme organisme = organismeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable : " + id));
         Employe employe = employeRepository.findById(request.getIdEmploye())
                 .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
         organisme.setCode(request.getCode());
@@ -48,10 +51,12 @@ public class OrganismeServiceImpl implements OrganismeService {
         return mapToResponse(organismeRepository.save(organisme));
     }
 
+    @Override
     public OrganismeResponse findById(Long id) {
-        Organisme organisme = organismeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable"));
-        return mapToResponse(organisme);
+        return mapToResponse(
+                organismeRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable : " + id))
+        );
     }
 
     @Override
@@ -63,8 +68,35 @@ public class OrganismeServiceImpl implements OrganismeService {
     @Override
     public void delete(Long id) {
         Organisme organisme = organismeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable : " + id));
         organismeRepository.delete(organisme);
+    }
+
+    @Override
+    public OrganismeResponse findByNom(String nom) {
+        // FIX: was returning null — now returns first match or throws
+        return organismeRepository.findByNom(nom).stream()
+                .findFirst()
+                .map(this::mapToResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable avec le nom : " + nom));
+    }
+
+    @Override
+    public OrganismeResponse findByCode(String code) {
+        // FIX: was returning null — now throws properly
+        return mapToResponse(
+                organismeRepository.findByCode(code)
+                        .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable avec le code : " + code))
+        );
+    }
+
+    @Override
+    public OrganismeResponse findByNomContact(String nomContact) {
+        // FIX: was returning null — now returns first match or throws
+        return organismeRepository.findByNomContact(nomContact).stream()
+                .findFirst()
+                .map(this::mapToResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable avec le contact : " + nomContact));
     }
 
     private OrganismeResponse mapToResponse(Organisme organisme) {
@@ -81,13 +113,4 @@ public class OrganismeServiceImpl implements OrganismeService {
         }
         return response;
     }
-
-    @Override
-    public OrganismeResponse findByNom(String nom) { return null; }
-
-    @Override
-    public OrganismeResponse findByCode(String code) { return null; }
-
-    @Override
-    public OrganismeResponse findByNomContact(String nomContact) { return null; }
 }
