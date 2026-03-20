@@ -29,9 +29,6 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
-    // -------------------------------------------------------
-    // Endpoints publics (pas besoin de token)
-    // -------------------------------------------------------
     private static final String[] PUBLIC_URLS = {
             "/api/auth/**",
             "/swagger-ui/**",
@@ -63,20 +60,21 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/organismes/**").hasAnyRole("SECRETAIRE", "ADMIN")
                         .requestMatchers(HttpMethod.GET,    "/api/organismes/**").hasAnyRole("SECRETAIRE", "ADMIN", "DIRECTEUR")
 
-                        // ----- Projets : SECRETAIRE + ADMIN, lecture DIRECTEUR + CHEF_PROJET -----
-                        .requestMatchers(HttpMethod.POST,   "/api/projets/**").hasAnyRole("SECRETAIRE", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT,    "/api/projets/**").hasAnyRole("SECRETAIRE", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/projets/**").hasAnyRole("SECRETAIRE", "ADMIN")
-                        .requestMatchers(HttpMethod.GET,    "/api/projets/**")
+                        // ----- FIX: was "/api/projets/**" but controller uses "/api/projects" -----
+                        .requestMatchers(HttpMethod.POST,   "/api/projects/**").hasAnyRole("SECRETAIRE", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT,    "/api/projects/**").hasAnyRole("SECRETAIRE", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/projects/**").hasAnyRole("SECRETAIRE", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,    "/api/projects/**")
                         .hasAnyRole("SECRETAIRE", "ADMIN", "DIRECTEUR", "CHEF_PROJET")
 
-                        // ----- Phases : CHEF_PROJET, lecture DIRECTEUR -----
-                        .requestMatchers(HttpMethod.POST,   "/api/phases/**", "/api/projets/*/phases/**")
-                        .hasAnyRole("CHEF_PROJET", "ADMIN")
+                        // ----- Phases : CHEF_PROJET + ADMIN -----
+                        .requestMatchers(HttpMethod.POST,   "/api/projets/*/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH,  "/api/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN", "COMPTABLE")
                         .requestMatchers(HttpMethod.DELETE, "/api/phases/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.GET,    "/api/phases/**")
+                        .hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR", "COMPTABLE")
+                        .requestMatchers(HttpMethod.GET,    "/api/projets/*/phases/**")
                         .hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR", "COMPTABLE")
 
                         // ----- Affectations : CHEF_PROJET -----
@@ -84,15 +82,14 @@ public class SecurityConfig {
                         .hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR")
 
                         // ----- Livrables : CHEF_PROJET -----
-                        .requestMatchers(HttpMethod.POST,   "/api/livrables/**", "/api/phases/*/livrables/**")
-                        .hasAnyRole("CHEF_PROJET", "ADMIN")
+                        .requestMatchers(HttpMethod.POST,   "/api/phases/*/livrables/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/livrables/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/livrables/**").hasAnyRole("CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.GET,    "/api/livrables/**")
                         .hasAnyRole("CHEF_PROJET", "ADMIN", "DIRECTEUR")
 
                         // ----- Documents : SECRETAIRE + CHEF_PROJET -----
-                        .requestMatchers(HttpMethod.POST,   "/api/documents/**", "/api/projets/*/documents/**")
+                        .requestMatchers(HttpMethod.POST,   "/api/projets/*/documents/**")
                         .hasAnyRole("SECRETAIRE", "CHEF_PROJET", "ADMIN")
                         .requestMatchers(HttpMethod.GET,    "/api/documents/**")
                         .hasAnyRole("SECRETAIRE", "CHEF_PROJET", "ADMIN", "DIRECTEUR")
@@ -105,9 +102,8 @@ public class SecurityConfig {
                         // ----- Reporting : DIRECTEUR + ADMIN -----
                         .requestMatchers("/api/reporting/**").hasAnyRole("DIRECTEUR", "ADMIN", "COMPTABLE")
 
-                        // Tout le reste : authentifié
-                        //Temporairement pour tester
-                        .anyRequest().permitAll()
+                        // FIX: was .permitAll() — now requires authentication for everything else
+                        .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,5 +1,6 @@
 package ma.fst.projet2societe.services;
 
+import lombok.RequiredArgsConstructor;
 import ma.fst.projet2societe.dto.FactureDTO;
 import ma.fst.projet2societe.entities.Facture;
 import ma.fst.projet2societe.entities.Phase;
@@ -7,24 +8,23 @@ import ma.fst.projet2societe.exceptions.BusinessException;
 import ma.fst.projet2societe.exceptions.ResourceNotFoundException;
 import ma.fst.projet2societe.repositories.FactureRepository;
 import ma.fst.projet2societe.repositories.PhaseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+// FIX: was using @Autowired field injection — switched to constructor injection
+@RequiredArgsConstructor
 public class FactureService {
 
-    @Autowired
-    private FactureRepository factureRepository;
-
-    @Autowired
-    private PhaseRepository phaseRepository;
+    private final FactureRepository factureRepository;
+    private final PhaseRepository phaseRepository;
 
     public FactureDTO create(Long phaseId, FactureDTO dto) {
         Phase phase = phaseRepository.findById(phaseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Phase non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Phase non trouvée : " + phaseId));
 
         if (!phase.isEtatRealisation()) {
             throw new BusinessException("La phase doit être terminée avant facturation");
@@ -50,21 +50,22 @@ public class FactureService {
     }
 
     public FactureDTO getById(Long id) {
-        Facture facture = factureRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Facture non trouvée"));
-        return mapToDTO(facture);
+        return mapToDTO(
+                factureRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Facture non trouvée : " + id))
+        );
     }
 
     public FactureDTO update(Long id, FactureDTO dto) {
         Facture facture = factureRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Facture non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Facture non trouvée : " + id));
 
         facture.setCode(dto.getCode());
         facture.setDateFacture(dto.getDateFacture());
 
         if (dto.getPhaseId() != null) {
             Phase phase = phaseRepository.findById(dto.getPhaseId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Phase non trouvée"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Phase non trouvée : " + dto.getPhaseId()));
             facture.setPhase(phase);
         }
 
@@ -73,7 +74,7 @@ public class FactureService {
 
     public void delete(Long id) {
         Facture facture = factureRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Facture non trouvée"));
+                .orElseThrow(() -> new ResourceNotFoundException("Facture non trouvée : " + id));
 
         Phase phase = facture.getPhase();
         phase.setEtatFacturation(false);

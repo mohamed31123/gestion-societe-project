@@ -1,6 +1,5 @@
 package ma.fst.projet2societe.entities;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +11,7 @@ import java.util.List;
 @Table(name = "projet")
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"organisme", "employe", "phases"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project {
@@ -20,27 +19,23 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nom;
-    private String code ;
+    private String code;
     private String description;
     private Date dateDebut;
     private Date dateFin;
     private Double montant;
 
-    //la relation entre projet et organisme
     @ManyToOne
     @JoinColumn(name = "idOrganisme")
     private Organisme organisme;
 
-    //la relation entre l'employe et les projets
     @ManyToOne
     @JoinColumn(name = "idEmploye")
     private Employe employe;
 
-    // La relation entre projet et phase
-    @OneToMany(mappedBy = "project", cascade =  CascadeType.ALL, orphanRemoval = true)
-    List<Phase> phases =  new ArrayList<>();
+    // FIX: added cascade and orphanRemoval, also fixed @ToString to exclude this
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Phase> phases = new ArrayList<>();
 
-    public boolean isPresent() {
-        return false;
-    }
+    // FIX: removed isPresent() method that always returned false
 }

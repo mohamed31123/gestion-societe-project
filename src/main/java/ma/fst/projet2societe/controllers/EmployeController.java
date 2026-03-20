@@ -77,14 +77,8 @@ public class EmployeController {
     @GetMapping("/search")
     public List<EmployeDTO> search(@RequestParam(required = false) String nom,
                                    @RequestParam(required = false) String matricule) {
-        if (matricule != null) {
-            return employeService.getAll().stream()
-                    .filter(e -> matricule.equalsIgnoreCase(e.getMatricule())).toList();
-        }
-        if (nom != null) {
-            return employeService.getAll().stream()
-                    .filter(e -> e.getNom().toLowerCase().contains(nom.toLowerCase())).toList();
-        }
-        return employeService.getAll();
+        // FIX: was loading ALL employees from DB then filtering in memory (3x for fallback).
+        // Now delegates to service which uses proper repository queries.
+        return employeService.search(nom, matricule);
     }
 }
