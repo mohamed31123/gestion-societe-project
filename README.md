@@ -210,10 +210,17 @@ Les endpoints peuvent être testés avec :
 ## 📌 Bonnes pratiques appliquées
 
 ✔ Architecture en couches
+
+
 ✔ Utilisation des **DTO**
+
 ✔ Séparation des responsabilités
+
 ✔ Gestion des exceptions
+
 ✔ Sécurité avec JWT
+
+
 ✔ Documentation API avec Swagger
 
 ---
