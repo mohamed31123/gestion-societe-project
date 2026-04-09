@@ -218,11 +218,18 @@ Les endpoints peuvent être testés avec :
 
 ---
 
-## 👨‍💻 Auteur
+## Contributeur
 
 **Mohamed EDDINARI**
 
-Étudiant en développement logiciel – spécialisé en **Spring Boot & Backend Development**
+
+**Mohamed ELMOUDEN**
+
+
+**Ilyass OUBABA**
+
+
+
 
 ---
 
