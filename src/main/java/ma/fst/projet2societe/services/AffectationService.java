@@ -11,6 +11,8 @@ import ma.fst.projet2societe.repositories.EmployeRepository;
 import ma.fst.projet2societe.repositories.PhaseRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -20,6 +22,10 @@ public class AffectationService {
     private final AffectationRepository affectationRepository;
     private final EmployeRepository employeRepository;
     private final PhaseRepository phaseRepository;
+
+    private Date toDate(java.time.LocalDate ld) {
+        return Date.from(ld.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
 
     public Affectation affecter(AffectationDTO dto) {
 
@@ -34,21 +40,22 @@ public class AffectationService {
             throw new DuplicateResourceException("Affectation déjà existante");
         }
 
-        if (dto.getDatedebut().after(dto.getDatefin())) {
+        Date debut = toDate(dto.getDatedebut());
+        Date fin   = toDate(dto.getDatefin());
+
+        if (debut.after(fin)) {
             throw new BusinessException("Date début > date fin");
         }
 
-        if (dto.getDatedebut().before(phase.getDateDebut()) ||
-                dto.getDatefin().after(phase.getDateFin())) {
+        if (debut.before(phase.getDateDebut()) || fin.after(phase.getDateFin())) {
             throw new BusinessException("Dates hors phase");
         }
 
         Affectation affectation = new Affectation();
         affectation.setEmploye(employe);
         affectation.setPhase(phase);
-        affectation.setDatedebut(dto.getDatedebut());
-        affectation.setDatefin(dto.getDatefin());
-
+        affectation.setDatedebut(debut);
+        affectation.setDatefin(fin);
 
         return affectationRepository.save(affectation);
     }
@@ -74,8 +81,15 @@ public class AffectationService {
         Affectation existing = affectationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Affectation non trouvée"));
 
-        existing.setDatedebut(dto.getDatedebut());
-        existing.setDatefin(dto.getDatefin());
+        Date debut = toDate(dto.getDatedebut());
+        Date fin   = toDate(dto.getDatefin());
+
+        if (debut.after(fin)) {
+            throw new BusinessException("Date début > date fin");
+        }
+
+        existing.setDatedebut(debut);
+        existing.setDatefin(fin);
 
         return affectationRepository.save(existing);
     }

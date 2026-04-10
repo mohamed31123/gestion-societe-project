@@ -27,6 +27,7 @@ public class Employe {
     private String telephone;
     private String email;
     private String login;
+    @JsonIgnore
     private String password;
 
     @ManyToOne

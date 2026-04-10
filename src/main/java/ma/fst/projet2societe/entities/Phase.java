@@ -1,5 +1,6 @@
 package ma.fst.projet2societe.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,16 +32,20 @@ public class Phase {
     private boolean etatFacturation;
     private boolean etatPaiement;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "phase")
     private List<Livrable> livrables = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "phase")
     private List<Facture> factures = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "phase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Affectation> affectations = new ArrayList<>();
 }

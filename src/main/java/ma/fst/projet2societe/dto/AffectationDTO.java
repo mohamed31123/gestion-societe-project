@@ -1,8 +1,9 @@
 package ma.fst.projet2societe.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -13,8 +14,10 @@ public class AffectationDTO {
     private Long phaseId;
 
     @NotNull(message = "La date de début est obligatoire")
-    private Date datedebut;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate datedebut;
 
     @NotNull(message = "La date de fin est obligatoire")
-    private Date datefin;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate datefin;
 }

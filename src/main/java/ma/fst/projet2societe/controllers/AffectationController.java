@@ -8,6 +8,7 @@ import ma.fst.projet2societe.dto.AffectationDTO;
 import ma.fst.projet2societe.entities.Affectation;
 import ma.fst.projet2societe.services.AffectationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -30,7 +31,7 @@ public class AffectationController {
             @Valid @RequestBody AffectationDTO dto) {
         dto.setPhaseId(phaseId);
         dto.setEmployeId(employeId);
-        return ResponseEntity.ok(affectationService.affecter(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(affectationService.affecter(dto));
     }
 
 
@@ -51,7 +52,7 @@ public class AffectationController {
     public ResponseEntity<Affectation> modifier(
             @PathVariable Long phaseId,
             @PathVariable Long employeId,
-           @Valid @RequestBody AffectationDTO dto) {
+            @Valid @RequestBody AffectationDTO dto) {
         return ResponseEntity.ok(affectationService.modifier(employeId, phaseId, dto));
     }
 
