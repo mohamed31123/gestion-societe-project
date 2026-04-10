@@ -3,6 +3,7 @@ package ma.fst.projet2societe.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import ma.fst.projet2societe.dto.AffectationDTO;
 import ma.fst.projet2societe.entities.Affectation;
 import ma.fst.projet2societe.services.AffectationService;
@@ -13,11 +14,12 @@ import java.util.List;
 
 @RestController
 @CrossOrigin("*")
+@RequiredArgsConstructor
 @Tag(name = "Gestion des affectations", description = "APIs pour gérer les affectations employé-phase")
 public class AffectationController {
 
-    @Autowired
-    private AffectationService affectationService;
+
+    private final AffectationService affectationService;
 
 
     @Operation(summary = "Affecter un employé à une phase")

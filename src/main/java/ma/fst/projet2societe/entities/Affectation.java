@@ -8,21 +8,18 @@ import lombok.Setter;
 
 import java.util.Date;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
+
+@Entity
+
 public class Affectation {
 
     @EmbeddedId
-    private AffectationId id ;
-
-    @Temporal(TemporalType.DATE)
-    private Date datedebut;
-    @Temporal(TemporalType.DATE)
-    private Date datefin;
-
+    private AffectationId id = new AffectationId();
 
     @ManyToOne
     @MapsId("employeId")
@@ -34,5 +31,9 @@ public class Affectation {
     @JoinColumn(name = "phase_id")
     private Phase phase;
 
+    @Temporal(TemporalType.DATE)
+    private Date datedebut;
 
+    @Temporal(TemporalType.DATE)
+    private Date datefin;
 }
