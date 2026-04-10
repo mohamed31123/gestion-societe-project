@@ -79,6 +79,11 @@ src/main/java/ma/fst/projet2societe
 
 ![WhatsApp Image 2026-04-09 at 17 40 18](https://github.com/user-attachments/assets/0bb62d37-6b7c-4e3d-8dca-ff1f6e38ad3f)
 
+## Diagramme de cas d'utilisation : 
+
+<img width="367" height="643" alt="image" src="https://github.com/user-attachments/assets/0af92040-2902-42a8-8165-d3beae8ce310" />
+
+
 
 ## 🔐 Authentification et sécurité
 
