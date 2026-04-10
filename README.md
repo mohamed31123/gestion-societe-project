@@ -80,10 +80,8 @@ src/main/java/ma/fst/projet2societe
 
 ### Frontend 
 
-<img 
-  src="https://github.com/user-attachments/assets/fa79ffb6-0765-480c-b94a-f2f10f0f31c8" 
-  width="1043" 
-  height="914"/>
+<img width="1047" height="879" alt="image" src="https://github.com/user-attachments/assets/6d3132a0-a26d-40b6-a286-878c1ab47ee8" />
+
 ---
 
 
