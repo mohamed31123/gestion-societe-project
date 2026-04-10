@@ -73,6 +73,13 @@ src/main/java/ma/fst/projet2societe
 
 ---
 
+## Conception UML : 
+
+### Diagramme de classe : 
+
+![WhatsApp Image 2026-04-09 at 17 40 18](https://github.com/user-attachments/assets/0bb62d37-6b7c-4e3d-8dca-ff1f6e38ad3f)
+
+
 ## 🔐 Authentification et sécurité
 
 Le projet utilise **Spring Security avec JWT** pour sécuriser les endpoints.
