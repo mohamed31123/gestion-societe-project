@@ -84,6 +84,16 @@ src/main/java/ma/fst/projet2societe
 
 
 
+## Video Demo 🎥 : 
+
+
+https://github.com/user-attachments/assets/903456c7-c481-405f-822b-b38d422134fd
+
+
+
+
+
+
 ## 🔐 Authentification et sécurité
 
 Le projet utilise **Spring Security avec JWT** pour sécuriser les endpoints.
