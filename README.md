@@ -73,6 +73,9 @@ src/main/java/ma/fst/projet2societe
 
 ---
 
+<img width="1043" height="914" alt="Diagramme sans nom drawio (1)" src="https://github.com/user-attachments/assets/0cbed0d4-298c-48a5-a73d-de87630e7428" />
+
+
 ## Conception UML : 
 
 ### Diagramme de classe : 
