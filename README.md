@@ -80,7 +80,7 @@ src/main/java/ma/fst/projet2societe
 ![WhatsApp Image 2026-04-09 at 17 40 18](https://github.com/user-attachments/assets/0bb62d37-6b7c-4e3d-8dca-ff1f6e38ad3f)
 
 ### Diagramme de séquence  :
-<img width="931" height="582" alt="image" src="https://github.com/user-attachments/assets/4ec51827-4ff8-49a7-b28c-7f3d8f044aea" />
+<img width="1154" height="782" alt="TPF1hfim44NtynMZjmgBwEsxg5u2I8qgDGXezouCgYK78u-9NZwftz4VwvXOmK4A4Wlcddl7rn8Vx9NpyyM0whnr-DDherbvcXt099BkzAH6Zs-7OQ3EAw_jcDlHEsiCkJTKZFbBi25trHqjLFDCbPV9s1lLD5dMilcsG6NzJ5L_56-PgdwvRqCUQkYLLxyb0uiZG58EzrynnozOd" src="https://github.com/user-attachments/assets/013cb5ce-3687-466f-a5fb-be2f9fecc920" />
 
 
 
