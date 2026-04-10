@@ -1,7 +1,5 @@
 package ma.fst.projet2societe.controllers;
 
-
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -9,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import ma.fst.projet2societe.dto.OrganismeRequest;
 import ma.fst.projet2societe.dto.OrganismeResponse;
 import ma.fst.projet2societe.services.OrganismeService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,54 +19,55 @@ import java.util.List;
 @Tag(name = "Organismes", description = "Gestion des organismes clients")
 public class OrganismeController {
 
-
     private final OrganismeService organismeService;
 
+    // POST /api/organismes
     @PostMapping
-    @Operation(summary = "creer un organisme")
-    public OrganismeResponse create(@Valid @RequestBody OrganismeRequest request) {
-        return organismeService.create(request);
+    @Operation(summary = "Créer un organisme")
+    public ResponseEntity<OrganismeResponse> create(@Valid @RequestBody OrganismeRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(organismeService.create(request));
     }
 
+    // GET /api/organismes
     @GetMapping
-    @Operation(summary = "trouver toutes les organismes")
-
+    @Operation(summary = "Lister tous les organismes")
     public List<OrganismeResponse> getAll() {
         return organismeService.findAll();
     }
 
-    @GetMapping("/nom/{nom}")
-    @Operation(summary = "trouver un organisme par son nom")
-
-
-
-
-    public OrganismeResponse findByNom(@PathVariable String nom) {
-        return organismeService.findByNom(nom);
+    // GET /api/organismes/{id}
+    @GetMapping("/{id}")
+    @Operation(summary = "Trouver un organisme par ID")
+    public ResponseEntity<OrganismeResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(organismeService.findById(id));
     }
 
-    @GetMapping("/code/{code}")
-    @Operation(summary = "trouver un organisme par son code")
-
-    public OrganismeResponse findByCode(@PathVariable String code) {
-        return organismeService.findByCode(code);
+    // PUT /api/organismes/{id}   — FIX: was PUT /api/organismes/update/{id}
+    @PutMapping("/{id}")
+    @Operation(summary = "Modifier un organisme")
+    public ResponseEntity<OrganismeResponse> update(@PathVariable Long id,
+                                                    @Valid @RequestBody OrganismeRequest request) {
+        return ResponseEntity.ok(organismeService.update(id, request));
     }
 
-    @GetMapping("/contact/{contact}")
-    @Operation(summary = "trouver un contact")
-    public OrganismeResponse findByContact(@PathVariable String contact) {
-        return organismeService.findByNomContact(contact);
+    // DELETE /api/organismes/{id}   — FIX: was DELETE /api/organismes?id=X
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Supprimer un organisme")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        organismeService.delete(id);
+        return ResponseEntity.noContent().build();
     }
-    @DeleteMapping
-    @Operation(summary = "supprimer une organisme")
-    public void deleteById(@RequestParam Long id) {
-         organismeService.delete(id);
-    }
-    //adding postMapping to update organisme
-    @PutMapping("update/{id}")
-    @Operation(summary = "creer des organismes")
-    public OrganismeResponse update(@PathVariable Long id, @Valid @RequestBody OrganismeRequest request) {
-        return organismeService.update(id, request);
 
+    // GET /api/organismes/search?nom=X&code=Y
+    @GetMapping("/search")
+    @Operation(summary = "Rechercher par nom ou code")
+    public ResponseEntity<OrganismeResponse> search(
+            @RequestParam(required = false) String nom,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String contact) {
+        if (nom != null)     return ResponseEntity.ok(organismeService.findByNom(nom));
+        if (code != null)    return ResponseEntity.ok(organismeService.findByCode(code));
+        if (contact != null) return ResponseEntity.ok(organismeService.findByNomContact(contact));
+        return ResponseEntity.badRequest().build();
     }
 }

@@ -11,11 +11,9 @@ import ma.fst.projet2societe.repositories.EmployeRepository;
 import ma.fst.projet2societe.repositories.PhaseRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
-// FIX: was using @Autowired field injection — switched to constructor injection with @RequiredArgsConstructor
 @RequiredArgsConstructor
 public class AffectationService {
 
@@ -31,42 +29,26 @@ public class AffectationService {
         Phase phase = phaseRepository.findById(dto.getPhaseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Phase non trouvée : " + dto.getPhaseId()));
 
-        // 1. Pas de doublon
         AffectationId affectationId = new AffectationId(dto.getEmployeId(), dto.getPhaseId());
         if (affectationRepository.existsById(affectationId)) {
-            throw new DuplicateResourceException("Affectation déjà existante pour cet employé et cette phase");
+            throw new DuplicateResourceException("Affectation déjà existante");
         }
 
-        // 2. Cohérence des dates
         if (dto.getDatedebut().after(dto.getDatefin())) {
-            throw new BusinessException("La date début doit être avant la date fin");
+            throw new BusinessException("Date début > date fin");
         }
 
-        // 3. Dates incluses dans la phase
         if (dto.getDatedebut().before(phase.getDateDebut()) ||
                 dto.getDatefin().after(phase.getDateFin())) {
-            throw new BusinessException("Les dates d'affectation doivent être incluses dans la période de la phase");
-        }
-
-        // 4. Employé disponible sur la période
-        LocalDate debut = dto.getDatedebut().toInstant()
-                .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
-        LocalDate fin = dto.getDatefin().toInstant()
-                .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
-
-        List<Employe> disponibles = employeRepository.findEmployesDisponibles(debut, fin);
-        boolean estDisponible = disponibles.stream()
-                .anyMatch(e -> e.getId().equals(dto.getEmployeId()));
-        if (!estDisponible) {
-            throw new BusinessException("Cet employé n'est pas disponible sur la période demandée");
+            throw new BusinessException("Dates hors phase");
         }
 
         Affectation affectation = new Affectation();
-        affectation.setId(affectationId);
         affectation.setEmploye(employe);
         affectation.setPhase(phase);
         affectation.setDatedebut(dto.getDatedebut());
         affectation.setDatefin(dto.getDatefin());
+
 
         return affectationRepository.save(affectation);
     }
@@ -80,19 +62,21 @@ public class AffectationService {
     }
 
     public void supprimer(Long employeId, Long phaseId) {
-        AffectationId affectationId = new AffectationId(employeId, phaseId);
-        if (!affectationRepository.existsById(affectationId)) {
+        AffectationId id = new AffectationId(employeId, phaseId);
+        if (!affectationRepository.existsById(id)) {
             throw new ResourceNotFoundException("Affectation non trouvée");
         }
-        affectationRepository.deleteById(affectationId);
+        affectationRepository.deleteById(id);
     }
 
     public Affectation modifier(Long employeId, Long phaseId, AffectationDTO dto) {
-        AffectationId affectationId = new AffectationId(employeId, phaseId);
-        Affectation existing = affectationRepository.findById(affectationId)
+        AffectationId id = new AffectationId(employeId, phaseId);
+        Affectation existing = affectationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Affectation non trouvée"));
+
         existing.setDatedebut(dto.getDatedebut());
         existing.setDatefin(dto.getDatefin());
+
         return affectationRepository.save(existing);
     }
 

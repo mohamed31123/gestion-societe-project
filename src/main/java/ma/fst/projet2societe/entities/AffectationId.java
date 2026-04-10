@@ -1,22 +1,37 @@
 package ma.fst.projet2societe.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Entity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-
-@Getter
-@Setter
+@Embeddable
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
-@Embeddable
 public class AffectationId implements Serializable {
 
+    @Column(name = "employe_id")
     private Long employeId;
+
+    @Column(name = "phase_id")
     private Long phaseId;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AffectationId that = (AffectationId) o;
+        return Objects.equals(employeId, that.employeId) &&
+                Objects.equals(phaseId, that.phaseId);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(employeId, phaseId);
+    }
 }
